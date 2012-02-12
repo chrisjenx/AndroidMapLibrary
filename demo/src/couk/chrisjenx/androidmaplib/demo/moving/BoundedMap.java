@@ -24,8 +24,7 @@ public class BoundedMap extends MapActivity
 		aml = new AMLController(this, R.id.map_view);
 
 		aml.debug(R.id.text1)
-				.registerOutOfBoundsListener(
-						OutOfBoundsOverlay.BoundingBox.BOUND_UNITED_KINGDOM,
+				.registerOutOfBoundsListener(OutOfBoundsOverlay.BoundingBox.BOUND_UNITED_KINGDOM,
 						new OutOfBoundsCallbacks()
 						{
 

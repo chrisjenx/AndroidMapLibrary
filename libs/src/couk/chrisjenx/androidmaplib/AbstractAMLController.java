@@ -1,6 +1,5 @@
 package couk.chrisjenx.androidmaplib;
 
-import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,11 +29,11 @@ public abstract class AbstractAMLController
 	private List<Overlay> mMapOverlays;
 	// StartStop
 	private StartStopMovingOverlay oStoppedMoving = null;
-	private final List<SoftReference<StartStopMovingCallbacks>> cStartStopCallbacks = new ArrayList<SoftReference<StartStopMovingCallbacks>>(
+	private final List<StartStopMovingCallbacks> cStartStopCallbacks = new ArrayList<StartStopMovingCallbacks>(
 			2);
 	// OutOfBounds
 	private OutOfBoundsOverlay oOutOfBounds;
-	private final List<SoftReference<OutOfBoundsCallbacks>> cOutOfBoundsCallbacks = new ArrayList<SoftReference<OutOfBoundsCallbacks>>(
+	private final List<OutOfBoundsCallbacks> cOutOfBoundsCallbacks = new ArrayList<OutOfBoundsCallbacks>(
 			2);
 
 	/*
@@ -51,8 +50,7 @@ public abstract class AbstractAMLController
 	 * 
 	 * @param mapView
 	 */
-	public AbstractAMLController(final MapActivity mapActivity,
-			final MapView mapView)
+	public AbstractAMLController(final MapActivity mapActivity, final MapView mapView)
 	{
 		mMapView = mapView;
 		mContext = mapActivity;
@@ -149,47 +147,36 @@ public abstract class AbstractAMLController
 	 * @param mListener
 	 * @return
 	 */
-	public AbstractAMLController registerStartStopListener(
-			StartStopMovingCallbacks mListener)
+	public AbstractAMLController registerStartStopListener(StartStopMovingCallbacks mListener)
 	{
 		// Register a soft reference to the callBack
-		cStartStopCallbacks.add(new SoftReference<StartStopMovingCallbacks>(
-				mListener));
+		cStartStopCallbacks.add(mListener);
 		if (mMapOverlays != null)
 		{
 			if (oStoppedMoving == null)
 			{
 				oStoppedMoving = new StartStopMovingOverlay();
-				oStoppedMoving
-						.setStoppedMovingListener(new StartStopMovingCallbacks()
+				oStoppedMoving.setStoppedMovingListener(new StartStopMovingCallbacks()
+				{
+
+					@Override
+					public void onMapStoppedMoving(GeoPoint mapCentre)
+					{
+						for (final StartStopMovingCallbacks listener : cStartStopCallbacks)
 						{
+							listener.onMapStoppedMoving(mapCentre);
+						}
+					}
 
-							@Override
-							public void onMapStoppedMoving(GeoPoint mapCentre)
-							{
-								StartStopMovingCallbacks listener;
-								for (final SoftReference<StartStopMovingCallbacks> softListener : cStartStopCallbacks)
-								{
-									listener = softListener.get();
-									if (listener == null) cStartStopCallbacks
-											.remove(softListener);
-									else listener.onMapStoppedMoving(mapCentre);
-								}
-							}
-
-							@Override
-							public void onMapStartedMoving()
-							{
-								StartStopMovingCallbacks listener;
-								for (final SoftReference<StartStopMovingCallbacks> softListener : cStartStopCallbacks)
-								{
-									listener = softListener.get();
-									if (listener == null) cStartStopCallbacks
-											.remove(softListener);
-									else listener.onMapStartedMoving();
-								}
-							}
-						});
+					@Override
+					public void onMapStartedMoving()
+					{
+						for (final StartStopMovingCallbacks listener : cStartStopCallbacks)
+						{
+							listener.onMapStartedMoving();
+						}
+					}
+				});
 				// Add mapOverlay to the end
 				mMapOverlays.add(oStoppedMoving);
 			}
@@ -203,8 +190,7 @@ public abstract class AbstractAMLController
 	 * @param boundingBox
 	 * @return
 	 */
-	public AbstractAMLController setOutOfBoundsBounding(
-			OutOfBoundsOverlay.BoundingBox boundingBox)
+	public AbstractAMLController setOutOfBoundsBounding(OutOfBoundsOverlay.BoundingBox boundingBox)
 	{
 		createOutOfBoundsOverlay();
 		if (oOutOfBounds != null)
@@ -222,8 +208,7 @@ public abstract class AbstractAMLController
 	 * @return
 	 */
 	public AbstractAMLController registerOutOfBoundsListener(
-			OutOfBoundsOverlay.BoundingBox boundingBox,
-			OutOfBoundsCallbacks mListener)
+			OutOfBoundsOverlay.BoundingBox boundingBox, OutOfBoundsCallbacks mListener)
 	{
 		registerOutOfBoundsListener(mListener);
 		setOutOfBoundsBounding(boundingBox);
@@ -240,15 +225,12 @@ public abstract class AbstractAMLController
 	 * @param mListener
 	 * @return
 	 */
-	public AbstractAMLController registerOutOfBoundsListener(
-			OutOfBoundsCallbacks mListener)
+	public AbstractAMLController registerOutOfBoundsListener(OutOfBoundsCallbacks mListener)
 	{
 		// Register a soft reference to the callBack
-		cOutOfBoundsCallbacks.add(new SoftReference<OutOfBoundsCallbacks>(
-				mListener));
+		cOutOfBoundsCallbacks.add(mListener);
 		createOutOfBoundsOverlay();
-		if (oOutOfBounds != null
-				&& oOutOfBounds.getOutOfBoundsListener() == null)
+		if (oOutOfBounds != null && oOutOfBounds.getOutOfBoundsListener() == null)
 		{
 			oOutOfBounds.setOutOfBoundsListener(new OutOfBoundsCallbacks()
 			{
@@ -256,26 +238,18 @@ public abstract class AbstractAMLController
 				@Override
 				public void mapOutOfBounds(GeoPoint mapCentre)
 				{
-					OutOfBoundsCallbacks listener;
-					for (final SoftReference<OutOfBoundsCallbacks> softListener : cOutOfBoundsCallbacks)
+					for (final OutOfBoundsCallbacks listener : cOutOfBoundsCallbacks)
 					{
-						listener = softListener.get();
-						if (listener == null) cOutOfBoundsCallbacks
-								.remove(softListener);
-						else listener.mapOutOfBounds(mapCentre);
+						listener.mapOutOfBounds(mapCentre);
 					}
 				}
 
 				@Override
 				public void mapInsideBounds()
 				{
-					OutOfBoundsCallbacks listener;
-					for (final SoftReference<OutOfBoundsCallbacks> softListener : cOutOfBoundsCallbacks)
+					for (final OutOfBoundsCallbacks listener : cOutOfBoundsCallbacks)
 					{
-						listener = softListener.get();
-						if (listener == null) cOutOfBoundsCallbacks
-								.remove(softListener);
-						else listener.mapInsideBounds();
+						listener.mapInsideBounds();
 					}
 				}
 			});
@@ -315,7 +289,7 @@ public abstract class AbstractAMLController
 		{
 			oOutOfBounds = new OutOfBoundsOverlay(this);
 			// Add mapOverlay to the end
-			mMapOverlays.add(oOutOfBounds);
+			mMapOverlays.add(0, oOutOfBounds);
 		}
 	}
 }

@@ -42,16 +42,13 @@ public final class StartStopMovingOverlay extends Overlay
 				// The map is currently being moved, we need to know this if the
 				// user is holding the map still it doesn't trigger the stopped
 				// moving
-				if (mListener != null && !isMapMoving)
-					mListener.onMapStartedMoving();
+				if (mListener != null && !isMapMoving) mListener.onMapStartedMoving();
 				isBeingTouched = true;
 				isMapMoving = true;
 				break;
 			case MotionEvent.ACTION_UP:
 			case MotionEvent.ACTION_CANCEL:
 				isBeingTouched = false;
-				break;
-			default:
 				break;
 		}
 		// We don't handle the touch event as other overlays need to use this
@@ -71,8 +68,7 @@ public final class StartStopMovingOverlay extends Overlay
 				if (currLatLon.equals(lastLatLon) && !isBeingTouched)
 				{
 					isMapMoving = false;
-					if (mListener != null)
-						mListener.onMapStoppedMoving(mapView.getMapCenter());
+					if (mListener != null) mListener.onMapStoppedMoving(mapView.getMapCenter());
 				}
 				else
 				{
@@ -94,8 +90,8 @@ public final class StartStopMovingOverlay extends Overlay
 	}
 
 	/**
-	 * Set the {@link StartStopMovingCallbacks} listener, callbacks moving events
-	 * will be called through here.
+	 * Set the {@link StartStopMovingCallbacks} listener, callbacks moving
+	 * events will be called through here.
 	 * 
 	 * @param listener
 	 */

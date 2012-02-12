@@ -5,7 +5,6 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.Rect;
-import android.util.Log;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapView;
@@ -136,7 +135,7 @@ public class OutOfBoundsOverlay extends Overlay
 	{
 		if (mListener != null) mListener.mapOutOfBounds(mv.getMapCenter());
 	}
-	
+
 	/**
 	 * InSideBounds
 	 */
@@ -177,8 +176,8 @@ public class OutOfBoundsOverlay extends Overlay
 		 * UK bounding box, uses the following values: 60.854691, 1.768960,
 		 * 49.162090, -13.413930
 		 */
-		public static final BoundingBox BOUND_UNITED_KINGDOM = new BoundingBox(
-				60.854691, 1.768960, 49.162090, -13.413930);
+		public static final BoundingBox BOUND_UNITED_KINGDOM = new BoundingBox(60.854691, 1.768960,
+				49.162090, -13.413930);
 
 		// Float versions of latlon
 		// Top Left
@@ -209,8 +208,7 @@ public class OutOfBoundsOverlay extends Overlay
 		 * @param southLat
 		 * @param westLon
 		 */
-		public BoundingBox(double northLat, double eastLon, double southLat,
-				double westLon)
+		public BoundingBox(double northLat, double eastLon, double southLat, double westLon)
 		{
 			super();
 			this.northLat = northLat;
