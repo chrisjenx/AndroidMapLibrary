@@ -2,7 +2,7 @@ package couk.chrisjenx.androidmaplib.interfaces;
 
 import com.google.android.maps.GeoPoint;
 
-public interface StoppedMovingEvents
+public interface StartStopMovingCallbacks
 {
 
 	/**

@@ -1,14 +1,13 @@
 package couk.chrisjenx.androidmaplib.demo.moving;
 
 import android.os.Bundle;
-import android.widget.Toast;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapActivity;
 
 import couk.chrisjenx.androidmaplib.AMLController;
 import couk.chrisjenx.androidmaplib.demo.R;
-import couk.chrisjenx.androidmaplib.interfaces.StoppedMovingEvents;
+import couk.chrisjenx.androidmaplib.interfaces.StartStopMovingCallbacks;
 
 public class StartedAndStoppedMoving extends MapActivity
 {
@@ -23,8 +22,8 @@ public class StartedAndStoppedMoving extends MapActivity
 
 		aml = new AMLController(this, R.id.map_view);
 
-		aml.debug(R.id.text1).setStoppedMovingListener(
-				new StoppedMovingEvents()
+		aml.debug(R.id.text1).registerStartStopListener(
+				new StartStopMovingCallbacks()
 				{
 
 					@Override

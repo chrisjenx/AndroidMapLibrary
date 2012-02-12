@@ -7,9 +7,9 @@ import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapView;
 import com.google.android.maps.Overlay;
 
-import couk.chrisjenx.androidmaplib.interfaces.StoppedMovingEvents;
+import couk.chrisjenx.androidmaplib.interfaces.StartStopMovingCallbacks;
 
-public final class StoppedMovingOverlay extends Overlay
+public final class StartStopMovingOverlay extends Overlay
 {
 
 	/**
@@ -31,7 +31,7 @@ public final class StoppedMovingOverlay extends Overlay
 	/**
 	 * The event callback listener
 	 */
-	private StoppedMovingEvents mListener;
+	private StartStopMovingCallbacks mListener;
 
 	@Override
 	public boolean onTouchEvent(MotionEvent e, MapView mapView)
@@ -94,12 +94,12 @@ public final class StoppedMovingOverlay extends Overlay
 	}
 
 	/**
-	 * Set the {@link StoppedMovingEvents} listener, callbacks moving events
+	 * Set the {@link StartStopMovingCallbacks} listener, callbacks moving events
 	 * will be called through here.
 	 * 
 	 * @param listener
 	 */
-	public final void setStoppedMovingListener(StoppedMovingEvents listener)
+	public final void setStoppedMovingListener(StartStopMovingCallbacks listener)
 	{
 		mListener = listener;
 	}
