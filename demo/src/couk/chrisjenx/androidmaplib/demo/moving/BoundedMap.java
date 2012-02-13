@@ -40,7 +40,7 @@ public class BoundedMap extends MapActivity
 								aml.debug("Currently inside bounds");
 							}
 
-						}).drawOutOfBoundsBox(true);
+						}).drawOutOfBoundsBox(true).setOutOfBoundsAutoBounding(true, false);
 
 	}
 

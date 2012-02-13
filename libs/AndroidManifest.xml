@@ -4,6 +4,9 @@
     android:versionCode="1"
     android:versionName="0.0.1" >
 
+    <!-- Would be required for your application -->
+    <!-- <uses-permission android:name="android.permission.INTERNET" /> -->
+
     <uses-sdk android:minSdkVersion="4" />
 
     <application

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="AML" default="dist" basedir=".">
+	<description>Android Mapping Library</description>
+	<!-- Setting global properties for this build -->
+	<property name="src" location="src" />
+	<property name="bin" location="bin" />
+
+	<target name="dist">
+		<jar destfile="../build/aml.jar" basedir="bin/classes">
+			<!-- Use ** to include the directory recursively -->
+			<include name="couk/**" />
+		</jar>
+		<jar destfile="../demo/libs/aml.jar" basedir="bin/classes">
+			<!-- Use ** to include the directory recursively -->
+			<include name="couk/**" />
+		</jar>
+	</target>
+</project>

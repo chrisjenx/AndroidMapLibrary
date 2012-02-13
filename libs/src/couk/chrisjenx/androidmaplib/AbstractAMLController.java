@@ -3,6 +3,9 @@ package couk.chrisjenx.androidmaplib;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.widget.TextView;
 
 import com.google.android.maps.GeoPoint;
@@ -19,10 +22,13 @@ import couk.chrisjenx.androidmaplib.overlays.StartStopMovingOverlay;
 public abstract class AbstractAMLController
 {
 
+	private final static int MSG_ANIMATE_TO = 0;
+	private final static long MSG_ANIMATE_TO_DELAY = 500;
+
 	private final MapView mMapView;
 	private final MapActivity mContext;
+	private final AMLHandler mHandler;
 	private TextView mDTV = null;
-
 	/*
 	 * Overlays
 	 */
@@ -54,6 +60,7 @@ public abstract class AbstractAMLController
 	{
 		mMapView = mapView;
 		mContext = mapActivity;
+		mHandler = new AMLHandler(mapActivity.getMainLooper());
 
 		init();
 	}
@@ -70,11 +77,13 @@ public abstract class AbstractAMLController
 		{
 			mContext = mapActivity;
 			mMapView = (MapView) mapActivity.findViewById(mapRes);
+			mHandler = new AMLHandler(mapActivity.getMainLooper());
 		}
 		else
 		{
 			mContext = null;
 			mMapView = null;
+			mHandler = null;
 		}
 
 		init();
@@ -127,6 +136,27 @@ public abstract class AbstractAMLController
 		if (mDTV != null)
 		{
 			mDTV.setText(output);
+		}
+		return this;
+	}
+
+	public final AbstractAMLController animateTo(GeoPoint point)
+	{
+		if (mMapController != null)
+		{
+			mHandler.removeMessages(MSG_ANIMATE_TO);
+			final Message msg = mHandler.obtainMessage(MSG_ANIMATE_TO);
+			msg.obj = point;
+			mHandler.sendMessageDelayed(msg, MSG_ANIMATE_TO_DELAY);
+		}
+		return this;
+	}
+
+	public final AbstractAMLController snapTo(GeoPoint point)
+	{
+		if (mMapController != null)
+		{
+			mMapController.setCenter(point);
 		}
 		return this;
 	}
@@ -196,6 +226,26 @@ public abstract class AbstractAMLController
 		if (oOutOfBounds != null)
 		{
 			oOutOfBounds.setBounds(boundingBox);
+		}
+		return this;
+	}
+
+	/**
+	 * @param autoBound
+	 *            should auto bind, requires
+	 *            {@link #setOutOfBoundsBounding(OutOfBoundsOverlay.BoundingBox)}
+	 *            to be set to work.
+	 * @param snap
+	 *            if true the view will snap back to the bound box, false will
+	 *            animate
+	 * @return
+	 */
+	public AbstractAMLController setOutOfBoundsAutoBounding(boolean autoBound, boolean snap)
+	{
+		createOutOfBoundsOverlay();
+		if (oOutOfBounds != null)
+		{
+			oOutOfBounds.setAutoBounding(autoBound, snap);
 		}
 		return this;
 	}
@@ -290,6 +340,39 @@ public abstract class AbstractAMLController
 			oOutOfBounds = new OutOfBoundsOverlay(this);
 			// Add mapOverlay to the end
 			mMapOverlays.add(0, oOutOfBounds);
+		}
+	}
+
+	/*
+	 * Internal Classes
+	 */
+
+	private class AMLHandler extends Handler
+	{
+
+		/**
+		 * Pass in the map looper!
+		 * 
+		 * @param looper
+		 */
+		public AMLHandler(Looper looper)
+		{
+			super(looper);
+		}
+
+		@Override
+		public void handleMessage(Message msg)
+		{
+			switch (msg.what)
+			{
+				case MSG_ANIMATE_TO:
+					GeoPoint point = (GeoPoint) msg.obj;
+					mMapController.animateTo(point);
+					break;
+
+				default:
+					break;
+			}
 		}
 	}
 }
