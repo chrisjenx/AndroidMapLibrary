@@ -6,6 +6,11 @@ import java.util.List;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.LinearLayout.LayoutParams;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.google.android.maps.GeoPoint;
@@ -17,9 +22,10 @@ import com.google.android.maps.Overlay;
 import couk.chrisjenx.androidmaplib.interfaces.OutOfBoundsCallbacks;
 import couk.chrisjenx.androidmaplib.interfaces.StartStopMovingCallbacks;
 import couk.chrisjenx.androidmaplib.overlays.OutOfBoundsOverlay;
+import couk.chrisjenx.androidmaplib.overlays.OutOfBoundsOverlay.BoundingBox;
 import couk.chrisjenx.androidmaplib.overlays.StartStopMovingOverlay;
 
-public abstract class AbstractAMLController
+public abstract class AbstractAMLController<T extends AbstractAMLController<T>>
 {
 
 	private final static int MSG_ANIMATE_TO = 0;
@@ -50,6 +56,28 @@ public abstract class AbstractAMLController
 	/*
 	 * Constructor stuff
 	 */
+
+	public AbstractAMLController(final MapActivity mapActivity, String apiKey)
+	{
+		mMapView = new MapView(mapActivity, apiKey);
+		mContext = mapActivity;
+		mHandler = new AMLHandler(mapActivity.getMainLooper());
+
+		addMapToView(null);
+
+		init();
+	}
+
+	public AbstractAMLController(final MapActivity mapActivity, String apiKey, int mapHolder)
+	{
+		mMapView = new MapView(mapActivity, apiKey);
+		mContext = mapActivity;
+		mHandler = new AMLHandler(mapActivity.getMainLooper());
+
+		addMapToView(mapHolder);
+
+		init();
+	}
 
 	/**
 	 * Create controller from the MapView
@@ -111,7 +139,7 @@ public abstract class AbstractAMLController
 	 *            valid resource to output, 0 to disable
 	 * @return
 	 */
-	public AbstractAMLController debug(int textView)
+	public T debug(int textView)
 	{
 		if (mContext != null && textView > 0)
 		{
@@ -121,7 +149,7 @@ public abstract class AbstractAMLController
 		{
 			mDTV = null;
 		}
-		return this;
+		return self();
 	}
 
 	/**
@@ -131,16 +159,16 @@ public abstract class AbstractAMLController
 	 * @param output
 	 * @return
 	 */
-	public AbstractAMLController debug(String output)
+	public T debug(String output)
 	{
 		if (mDTV != null)
 		{
 			mDTV.setText(output);
 		}
-		return this;
+		return self();
 	}
 
-	public final AbstractAMLController animateTo(GeoPoint point)
+	public final T animateTo(GeoPoint point)
 	{
 		if (mMapController != null)
 		{
@@ -149,16 +177,16 @@ public abstract class AbstractAMLController
 			msg.obj = point;
 			mHandler.sendMessageDelayed(msg, MSG_ANIMATE_TO_DELAY);
 		}
-		return this;
+		return self();
 	}
 
-	public final AbstractAMLController snapTo(GeoPoint point)
+	public final T snapTo(GeoPoint point)
 	{
 		if (mMapController != null)
 		{
 			mMapController.setCenter(point);
 		}
-		return this;
+		return self();
 	}
 
 	/*
@@ -177,7 +205,7 @@ public abstract class AbstractAMLController
 	 * @param mListener
 	 * @return
 	 */
-	public AbstractAMLController registerStartStopListener(StartStopMovingCallbacks mListener)
+	public T registerStartStopListener(StartStopMovingCallbacks mListener)
 	{
 		// Register a soft reference to the callBack
 		cStartStopCallbacks.add(mListener);
@@ -211,7 +239,29 @@ public abstract class AbstractAMLController
 				mMapOverlays.add(oStoppedMoving);
 			}
 		}
-		return this;
+		return self();
+	}
+
+	/**
+	 * Very shorthand method for setting bounding on the MapView.
+	 * 
+	 * @see {@link #setOutOfBoundsBounding(BoundingBox)}
+	 *      {@link #setOutOfBoundsAutoBounding(boolean, boolean)}
+	 * @param northLat
+	 *            top bound
+	 * @param eastLon
+	 *            right bound
+	 * @param southLat
+	 *            bottom bound
+	 * @param westLon
+	 *            left bound
+	 * @return self
+	 */
+	public T bounds(double northLat, double eastLon, double southLat, double westLon)
+	{
+		setOutOfBoundsBounding(new BoundingBox(northLat, eastLon, southLat, westLon));
+		setOutOfBoundsAutoBounding(true, false);
+		return self();
 	}
 
 	/**
@@ -220,14 +270,14 @@ public abstract class AbstractAMLController
 	 * @param boundingBox
 	 * @return
 	 */
-	public AbstractAMLController setOutOfBoundsBounding(OutOfBoundsOverlay.BoundingBox boundingBox)
+	public T setOutOfBoundsBounding(OutOfBoundsOverlay.BoundingBox boundingBox)
 	{
 		createOutOfBoundsOverlay();
 		if (oOutOfBounds != null)
 		{
 			oOutOfBounds.setBounds(boundingBox);
 		}
-		return this;
+		return self();
 	}
 
 	/**
@@ -240,14 +290,14 @@ public abstract class AbstractAMLController
 	 *            animate
 	 * @return
 	 */
-	public AbstractAMLController setOutOfBoundsAutoBounding(boolean autoBound, boolean snap)
+	public T setOutOfBoundsAutoBounding(boolean autoBound, boolean snap)
 	{
 		createOutOfBoundsOverlay();
 		if (oOutOfBounds != null)
 		{
 			oOutOfBounds.setAutoBounding(autoBound, snap);
 		}
-		return this;
+		return self();
 	}
 
 	/**
@@ -257,12 +307,12 @@ public abstract class AbstractAMLController
 	 * @param mListener
 	 * @return
 	 */
-	public AbstractAMLController registerOutOfBoundsListener(
-			OutOfBoundsOverlay.BoundingBox boundingBox, OutOfBoundsCallbacks mListener)
+	public T registerOutOfBoundsListener(OutOfBoundsOverlay.BoundingBox boundingBox,
+			OutOfBoundsCallbacks mListener)
 	{
 		registerOutOfBoundsListener(mListener);
 		setOutOfBoundsBounding(boundingBox);
-		return this;
+		return self();
 	}
 
 	/**
@@ -275,7 +325,7 @@ public abstract class AbstractAMLController
 	 * @param mListener
 	 * @return
 	 */
-	public AbstractAMLController registerOutOfBoundsListener(OutOfBoundsCallbacks mListener)
+	public T registerOutOfBoundsListener(OutOfBoundsCallbacks mListener)
 	{
 		// Register a soft reference to the callBack
 		cOutOfBoundsCallbacks.add(mListener);
@@ -305,7 +355,7 @@ public abstract class AbstractAMLController
 			});
 		}
 
-		return this;
+		return self();
 	}
 
 	/**
@@ -317,18 +367,68 @@ public abstract class AbstractAMLController
 	 *            true to draw it, false will hide it.
 	 * @return
 	 */
-	public AbstractAMLController drawOutOfBoundsBox(boolean draw)
+	public T drawOutOfBoundsBox(boolean draw)
 	{
 		if (oOutOfBounds != null)
 		{
 			oOutOfBounds.drawBounds(draw);
 		}
-		return this;
+		return self();
 	}
 
 	/*
 	 * Internal methods
 	 */
+
+	private final void addMapToView(final int viewGroup)
+	{
+		if (mContext == null) return;
+		View v = mContext.findViewById(viewGroup);
+		if (v instanceof ViewGroup)
+		{
+			addMapToView((ViewGroup) v);
+		}
+	}
+
+	private final void addMapToView(final ViewGroup v)
+	{
+		if (mMapView == null) return;
+		View root = null;
+		View content = null;
+		if (v != null)
+		{
+			content = v;
+		}
+		else
+		{
+			// Grab the activity content view
+			root = mContext.findViewById(android.R.id.content);
+		}
+
+		if (root instanceof ViewGroup && content == null)
+		{
+			// Try to get the inner view group of my
+			content = ((ViewGroup) root).getChildAt(0);
+		}
+		if (content instanceof RelativeLayout)
+		{
+			// Add to the beginning of the view group
+			((ViewGroup) content).addView(mMapView, 0);
+		}
+		else if (content instanceof LinearLayout)
+		{
+			if (((LinearLayout) content).getOrientation() == LinearLayout.VERTICAL)
+			{
+				((LinearLayout) content).addView(mMapView, 0, new LinearLayout.LayoutParams(
+						LayoutParams.FILL_PARENT, 0, 1));
+			}
+			else
+			{
+				((LinearLayout) content).addView(mMapView, 0, new LinearLayout.LayoutParams(0,
+						LayoutParams.FILL_PARENT, 1));
+			}
+		}
+	}
 
 	/**
 	 * Will create the outofbounds overlay if it doesn't already exist
@@ -341,6 +441,12 @@ public abstract class AbstractAMLController
 			// Add mapOverlay to the end
 			mMapOverlays.add(0, oOutOfBounds);
 		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private final T self()
+	{
+		return (T) this;
 	}
 
 	/*

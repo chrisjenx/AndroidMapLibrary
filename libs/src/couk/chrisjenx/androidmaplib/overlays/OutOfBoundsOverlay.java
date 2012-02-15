@@ -27,7 +27,7 @@ import couk.chrisjenx.androidmaplib.interfaces.StartStopMovingCallbacks;
 public class OutOfBoundsOverlay extends Overlay
 {
 
-	private final AbstractAMLController aml;
+	private final AbstractAMLController<?> aml;
 	private final MapView mv;
 	// The reusable Rect for getting the current bounding box
 	private final Rect mPxBounds = new Rect(0, 0, 0, 0);
@@ -57,7 +57,7 @@ public class OutOfBoundsOverlay extends Overlay
 	private boolean autoBound = false;
 	private boolean autoBoundSnap = false;
 
-	public OutOfBoundsOverlay(AbstractAMLController aml)
+	public OutOfBoundsOverlay(AbstractAMLController<?> aml)
 	{
 		this.aml = aml;
 		mv = aml.getMapView();
@@ -272,7 +272,6 @@ public class OutOfBoundsOverlay extends Overlay
 		GeoPoint cen = mv.getMapCenter();
 		Point cenPx = mv.getProjection().toPixels(cen, null);
 		cenPx.x += diff[0];
-		cenPx.y += diff[1];
 
 		// New centre
 		cen = mv.getProjection().fromPixels(cenPx.x, cenPx.y);
