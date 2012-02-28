@@ -2,22 +2,26 @@
 <project name="AML" default="auto" basedir=".">
 	<description>Android Mapping Library</description>
 	<!-- Setting global properties for this build -->
-	<property name="src" location="src" />
 	<property name="source.dir" location="src" />
-	<property name="bin" location="bin" />
+	<property name="bin.dir" location="bin" />
 	<property name="doc.dir" location="../docs" />
+	<property name="build.dir" location="../build"/>
 
 	<!-- Generate javadocs for current project into ${doc.dir} -->
 	<target name="doc" description="generate documentation">
+		<delete dir="${doc.dir}"/>
+		<sleep seconds="1" />
+		<mkdir dir="${doc.dir}"/>
 		<javadoc sourcepath="${source.dir}" destdir="${doc.dir}" />
+		<jar destfile="${build.dir}/aml-javadoc.jar" basedir="${doc.dir}" />
 	</target>
 
 	<target name="auto" description="generate jars">
-		<jar destfile="../build/aml.jar" basedir="bin/classes">
+		<jar destfile="${build.dir}/aml.jar" basedir="${bin.dir}/classes">
 			<!-- Use ** to include the directory recursively -->
 			<include name="couk/**" />
 		</jar>
-		<jar destfile="../demo/libs/aml.jar" basedir="bin/classes">
+		<jar destfile="../demo/libs/aml.jar" basedir="${bin.dir}/classes">
 			<!-- Use ** to include the directory recursively -->
 			<include name="couk/**" />
 		</jar>
