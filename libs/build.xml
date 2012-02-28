@@ -1,11 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="AML" default="dist" basedir=".">
+<project name="AML" default="auto" basedir=".">
 	<description>Android Mapping Library</description>
 	<!-- Setting global properties for this build -->
 	<property name="src" location="src" />
+	<property name="source.dir" location="src" />
 	<property name="bin" location="bin" />
+	<property name="doc.dir" location="../docs" />
 
-	<target name="dist">
+	<!-- Generate javadocs for current project into ${doc.dir} -->
+	<target name="doc" description="generate documentation">
+		<javadoc sourcepath="${source.dir}" destdir="${doc.dir}" />
+	</target>
+
+	<target name="auto" description="generate jars">
 		<jar destfile="../build/aml.jar" basedir="bin/classes">
 			<!-- Use ** to include the directory recursively -->
 			<include name="couk/**" />
@@ -15,4 +22,5 @@
 			<include name="couk/**" />
 		</jar>
 	</target>
+
 </project>
