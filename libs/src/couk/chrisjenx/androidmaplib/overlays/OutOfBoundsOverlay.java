@@ -270,8 +270,9 @@ public class OutOfBoundsOverlay extends Overlay
 	private final void doMoveOutOfBounds(int[] diff)
 	{
 		GeoPoint cen = mv.getMapCenter();
-		Point cenPx = mv.getProjection().toPixels(cen, null);
+		final Point cenPx = mv.getProjection().toPixels(cen, null);
 		cenPx.x += diff[0];
+		cenPx.y += diff[1];
 
 		// New centre
 		cen = mv.getProjection().fromPixels(cenPx.x, cenPx.y);

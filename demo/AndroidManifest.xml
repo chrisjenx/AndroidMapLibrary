@@ -59,6 +59,16 @@
             </intent-filter>
         </activity>
         
+        <activity
+            android:name=".easy.QuickBoundedMap"
+            android:label="Easy/Quick Bounded Map" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+        
     </application>
 
 </manifest>

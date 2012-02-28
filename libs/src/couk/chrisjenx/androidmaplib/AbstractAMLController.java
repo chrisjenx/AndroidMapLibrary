@@ -247,6 +247,7 @@ public abstract class AbstractAMLController<T extends AbstractAMLController<T>>
 	 * 
 	 * @see {@link #setOutOfBoundsBounding(BoundingBox)}
 	 *      {@link #setOutOfBoundsAutoBounding(boolean, boolean)}
+	 *      {@link BoundingBox}
 	 * @param northLat
 	 *            top bound
 	 * @param eastLon
@@ -260,6 +261,23 @@ public abstract class AbstractAMLController<T extends AbstractAMLController<T>>
 	public T bounds(double northLat, double eastLon, double southLat, double westLon)
 	{
 		setOutOfBoundsBounding(new BoundingBox(northLat, eastLon, southLat, westLon));
+		setOutOfBoundsAutoBounding(true, false);
+		return self();
+	}
+
+	/**
+	 * Set the bounding box by passing in a bounding box.
+	 * 
+	 * @see {@link #setOutOfBoundsBounding(BoundingBox)}
+	 *      {@link #setOutOfBoundsAutoBounding(boolean, boolean)}
+	 *      {@link BoundingBox}
+	 * @param bounds
+	 *            a predefined bounding box.
+	 * @return self
+	 */
+	public T bounds(OutOfBoundsOverlay.BoundingBox bounds)
+	{
+		setOutOfBoundsBounding(bounds);
 		setOutOfBoundsAutoBounding(true, false);
 		return self();
 	}
@@ -317,10 +335,10 @@ public abstract class AbstractAMLController<T extends AbstractAMLController<T>>
 
 	/**
 	 * Register a OutOfBounds listener, remember you need to set the bounding
-	 * box, so if you havent called
+	 * box, so if you haven't called
 	 * {@link #registerOutOfBoundsListener(OutOfBoundsOverlay.BoundingBox, OutOfBoundsCallbacks)}
 	 * or {@link #setOutOfBoundsBounding(OutOfBoundsOverlay.BoundingBox)}
-	 * nothing will happen
+	 * nothing will happen.
 	 * 
 	 * @param mListener
 	 * @return
