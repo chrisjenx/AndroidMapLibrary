@@ -80,7 +80,7 @@ public class OutOfBoundsOverlay extends Overlay
 	/**
 	 * Get the currently attached listener
 	 * 
-	 * @return
+	 * @return returns the currently attached OutOfBoundsListener
 	 */
 	public OutOfBoundsCallbacks getOutOfBoundsListener()
 	{

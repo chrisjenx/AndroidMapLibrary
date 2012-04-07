@@ -5,15 +5,21 @@
 	<property name="source.dir" location="src" />
 	<property name="bin.dir" location="bin" />
 	<property name="doc.dir" location="../docs" />
-	<property name="build.dir" location="../build"/>
+	<property name="build.dir" location="../build" />
+
+	<path id="android-classes">
+		<pathelement path="C:/android-sdk/platforms/android-15/android.jar" />
+		<pathelement path="C:/android-sdk/add-ons/addon-google_apis-google_inc_-15/libs/maps.jar" />
+	</path>
 
 	<!-- Generate javadocs for current project into ${doc.dir} -->
 	<target name="doc" description="generate documentation">
-		<delete dir="${doc.dir}"/>
+		<delete dir="${doc.dir}" />
 		<sleep seconds="1" />
-		<mkdir dir="${doc.dir}"/>
-		<javadoc sourcepath="${source.dir}" destdir="${doc.dir}" />
+		<mkdir dir="${doc.dir}" />
+		<javadoc sourcepath="${source.dir}" classpathref="android-classes" destdir="${doc.dir}" package="couk.chrisjenx.*" />
 		<jar destfile="${build.dir}/aml-javadoc.jar" basedir="${doc.dir}" />
+		<copy todir="../demo/docs/" file="${build.dir}/aml-javadoc.jar" />
 	</target>
 
 	<target name="auto" description="generate jars">
@@ -21,10 +27,7 @@
 			<!-- Use ** to include the directory recursively -->
 			<include name="couk/**" />
 		</jar>
-		<jar destfile="../demo/libs/aml.jar" basedir="${bin.dir}/classes">
-			<!-- Use ** to include the directory recursively -->
-			<include name="couk/**" />
-		</jar>
+		<copy todir="../demo/libs/" file="${build.dir}/aml.jar" />
 	</target>
 
 </project>

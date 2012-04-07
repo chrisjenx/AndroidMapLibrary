@@ -3,6 +3,7 @@ package couk.chrisjenx.androidmaplib;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -21,6 +22,8 @@ import com.google.android.maps.Overlay;
 
 import couk.chrisjenx.androidmaplib.interfaces.OutOfBoundsCallbacks;
 import couk.chrisjenx.androidmaplib.interfaces.StartStopMovingCallbacks;
+import couk.chrisjenx.androidmaplib.location.BetterLocationManager;
+import couk.chrisjenx.androidmaplib.overlays.BetterLocationOverlay;
 import couk.chrisjenx.androidmaplib.overlays.OutOfBoundsOverlay;
 import couk.chrisjenx.androidmaplib.overlays.OutOfBoundsOverlay.BoundingBox;
 import couk.chrisjenx.androidmaplib.overlays.StartStopMovingOverlay;
@@ -47,6 +50,9 @@ public abstract class AbstractAMLController<T extends AbstractAMLController<T>>
 	private OutOfBoundsOverlay oOutOfBounds;
 	private final List<OutOfBoundsCallbacks> cOutOfBoundsCallbacks = new ArrayList<OutOfBoundsCallbacks>(
 			2);
+	// Location manager
+	private BetterLocationManager mLocationManager;
+	private BetterLocationOverlay oLocationOverlay;
 
 	/*
 	 * Map controls
@@ -57,6 +63,14 @@ public abstract class AbstractAMLController<T extends AbstractAMLController<T>>
 	 * Constructor stuff
 	 */
 
+	/**
+	 * Will create aml, and try to add the map into the root of the view. If you
+	 * have complicated layouts its better to use another method.
+	 * 
+	 * @see #AbstractAMLController(MapActivity, int)
+	 * @param mapActivity
+	 * @param apiKey
+	 */
 	public AbstractAMLController(final MapActivity mapActivity, String apiKey)
 	{
 		mMapView = new MapView(mapActivity, apiKey);
@@ -137,34 +151,43 @@ public abstract class AbstractAMLController<T extends AbstractAMLController<T>>
 	 * 
 	 * @param textView
 	 *            valid resource to output, 0 to disable
-	 * @return
+	 * @return myself
 	 */
 	public T debug(int textView)
 	{
 		if (mContext != null && textView > 0)
 		{
-			mDTV = (TextView) mContext.findViewById(textView);
+			final View v = mContext.findViewById(textView);
+			if (v instanceof TextView)
+			{
+				mDTV = (TextView) v;
+				AMLUtils.debug(true);
+			}
 		}
 		else
 		{
 			mDTV = null;
+			AMLUtils.debug(false);
 		}
 		return self();
 	}
 
 	/**
-	 * Output to the debug text view, safe to use, if you dont set the textView
-	 * this does nothing
+	 * Output to the debug text view, safe to use, if you don't set the textView
+	 * this will log to the logcat if you have {@link AMLUtils#debug(boolean)}
+	 * to true
 	 * 
 	 * @param output
-	 * @return
+	 *            object, this will get toString'd etc...
+	 * @return myself
 	 */
-	public T debug(String output)
+	public T debug(Object output)
 	{
 		if (mDTV != null)
 		{
-			mDTV.setText(output);
+			mDTV.setText(String.valueOf(output));
 		}
+		AMLUtils.debug(output);
 		return self();
 	}
 
@@ -198,12 +221,17 @@ public abstract class AbstractAMLController<T extends AbstractAMLController<T>>
 		return mMapView;
 	}
 
+	public final Context getContext()
+	{
+		return mMapView.getContext();
+	}
+
 	/**
 	 * Register a start stop listener, this is a fairly dumb overlay, it will
 	 * notify when the map is moving and when its stopped.
 	 * 
 	 * @param mListener
-	 * @return
+	 * @return myself
 	 */
 	public T registerStartStopListener(StartStopMovingCallbacks mListener)
 	{
@@ -245,9 +273,10 @@ public abstract class AbstractAMLController<T extends AbstractAMLController<T>>
 	/**
 	 * Very shorthand method for setting bounding on the MapView.
 	 * 
-	 * @see {@link #setOutOfBoundsBounding(BoundingBox)}
-	 *      {@link #setOutOfBoundsAutoBounding(boolean, boolean)}
-	 *      {@link BoundingBox}
+	 * @see #setOutOfBoundsAutoBounding(boolean, boolean)
+	 * @see #setOutOfBoundsBounding(OutOfBoundsOverlay.BoundingBox)
+	 * @see #setOutOfBoundsAutoBounding(boolean, boolean)
+	 * @see BoundingBox
 	 * @param northLat
 	 *            top bound
 	 * @param eastLon
@@ -268,9 +297,9 @@ public abstract class AbstractAMLController<T extends AbstractAMLController<T>>
 	/**
 	 * Set the bounding box by passing in a bounding box.
 	 * 
-	 * @see {@link #setOutOfBoundsBounding(BoundingBox)}
-	 *      {@link #setOutOfBoundsAutoBounding(boolean, boolean)}
-	 *      {@link BoundingBox}
+	 * @see #setOutOfBoundsBounding(OutOfBoundsOverlay.BoundingBox)
+	 * @see #setOutOfBoundsAutoBounding(boolean, boolean)
+	 * @see BoundingBox
 	 * @param bounds
 	 *            a predefined bounding box.
 	 * @return self
@@ -286,7 +315,7 @@ public abstract class AbstractAMLController<T extends AbstractAMLController<T>>
 	 * Sets the bounding box on the map
 	 * 
 	 * @param boundingBox
-	 * @return
+	 * @return myself
 	 */
 	public T setOutOfBoundsBounding(OutOfBoundsOverlay.BoundingBox boundingBox)
 	{
@@ -306,7 +335,7 @@ public abstract class AbstractAMLController<T extends AbstractAMLController<T>>
 	 * @param snap
 	 *            if true the view will snap back to the bound box, false will
 	 *            animate
-	 * @return
+	 * @return myself
 	 */
 	public T setOutOfBoundsAutoBounding(boolean autoBound, boolean snap)
 	{
@@ -323,7 +352,7 @@ public abstract class AbstractAMLController<T extends AbstractAMLController<T>>
 	 * 
 	 * @param boundingBox
 	 * @param mListener
-	 * @return
+	 * @return myself
 	 */
 	public T registerOutOfBoundsListener(OutOfBoundsOverlay.BoundingBox boundingBox,
 			OutOfBoundsCallbacks mListener)
@@ -341,7 +370,7 @@ public abstract class AbstractAMLController<T extends AbstractAMLController<T>>
 	 * nothing will happen.
 	 * 
 	 * @param mListener
-	 * @return
+	 * @return myself
 	 */
 	public T registerOutOfBoundsListener(OutOfBoundsCallbacks mListener)
 	{
@@ -383,7 +412,7 @@ public abstract class AbstractAMLController<T extends AbstractAMLController<T>>
 	 * 
 	 * @param draw
 	 *            true to draw it, false will hide it.
-	 * @return
+	 * @return myself
 	 */
 	public T drawOutOfBoundsBox(boolean draw)
 	{

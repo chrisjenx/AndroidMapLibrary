@@ -19,6 +19,6 @@ public interface StartStopMovingCallbacks
 	 * @param mapCenter
 	 *            This is the current map centre after it finishes moving.
 	 */
-	public void onMapStoppedMoving(GeoPoint mapCentre);
+	public void onMapStoppedMoving(GeoPoint mapCenter);
 
 }

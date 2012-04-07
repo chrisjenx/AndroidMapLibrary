@@ -1,3 +1,5 @@
 couk.chrisjenx.androidmaplib
 couk.chrisjenx.androidmaplib.interfaces
+couk.chrisjenx.androidmaplib.location
 couk.chrisjenx.androidmaplib.overlays
+couk.chrisjenx.androidmaplib.tools
